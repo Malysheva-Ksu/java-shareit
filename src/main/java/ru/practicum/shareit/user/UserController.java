@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -31,10 +33,10 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            log.warn("Попытка создать пользователя с пустым email");
-            return ResponseEntity.badRequest().build();
+            log.warn("Попытка создать пользователя с пустым email. DTO: {}", userDto);
+            throw new IllegalArgumentException("Email не может быть пустым или отсутствовать.");
         }
         UserDto createdUser = userService.createUser(userDto);
         log.info("Пользователь успешно создан: {}", createdUser);
@@ -42,7 +44,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long userId,@Valid @RequestBody UserDto userDto) {
         UserDto updatedUser = userService.updateUser(userId, userDto);
         log.info("Пользователь успешно обновлен: {}", updatedUser);
         return ResponseEntity.ok(updatedUser);
