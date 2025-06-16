@@ -5,19 +5,19 @@ import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.request.model.ItemRequest;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Item {
+public class Comment {
 
     private Long id;
-    private String name;
-    private String description;
-    private Boolean available;
-    private User owner;
-    private ItemRequest request;
+    private String text;
+    private Item item;
+    private User author;
+    private LocalDateTime created;
 
 }
