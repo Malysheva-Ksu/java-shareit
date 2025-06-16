@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user.controller;
+package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,14 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
-// import javax.validation.Valid; // Если будете добавлять валидацию
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Slf4j // Для логирования
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -53,6 +52,6 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         log.info("Пользователь с ID {} успешно удален", userId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Или ResponseEntity.ok().build() в зависимости от требований
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

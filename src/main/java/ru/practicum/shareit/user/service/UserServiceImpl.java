@@ -34,7 +34,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        // Проверка на существующий email перед сохранением
         userStorage.findByEmail(userDto.getEmail()).ifPresent(u -> {
             throw new EmailAlreadyExistsException("Email " + userDto.getEmail() + " уже используется.");
         });
@@ -50,17 +49,17 @@ public class UserServiceImpl implements UserService {
 
         if (userDto.getEmail() != null && !userDto.getEmail().equalsIgnoreCase(existingUser.getEmail())) {
             userStorage.findByEmail(userDto.getEmail()).ifPresent(u -> {
-                if (!u.getId().equals(userId)) { // Убедимся, что это не тот же самый пользователь
+                if (!u.getId().equals(userId)) {
                     throw new EmailAlreadyExistsException("Email " + userDto.getEmail() + " уже используется другим пользователем.");
                 }
             });
         }
 
         User userToUpdate = UserMapper.toUser(userDto);
-        userToUpdate.setId(userId); // Устанавливаем ID для обновления существующей записи
+        userToUpdate.setId(userId);
 
         User updatedUser = userStorage.update(userToUpdate)
-                .orElseThrow(() -> new UserNotFoundException("Не удалось обновить пользователя с ID " + userId)); // На случай, если update вернет empty
+                .orElseThrow(() -> new UserNotFoundException("Не удалось обновить пользователя с ID " + userId));
 
         return UserMapper.toUserDto(updatedUser);
     }
