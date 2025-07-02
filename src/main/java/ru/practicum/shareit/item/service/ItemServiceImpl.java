@@ -18,7 +18,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.repository.ItemRequestRepository;
+import ru.practicum.shareit.request.storage.ItemRequestStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.exception.UserNotFoundException;
@@ -35,7 +35,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
-    private final ItemRequestRepository itemRequestRepository;
+    private final ItemRequestStorage itemRequestStorage;
 
     @Override
     @Transactional
@@ -44,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.toItem(itemDto, owner);
 
         if (itemDto.getRequestId() != null) {
-            ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
+            ItemRequest request = itemRequestStorage.findById(itemDto.getRequestId())
                     .orElse(null);
             item.setRequest(request);
         }
