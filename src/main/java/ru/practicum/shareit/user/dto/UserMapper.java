@@ -23,7 +23,7 @@ public class UserMapper {
             return null;
         }
         return User.builder()
-                .id(userDto.getId()) // ID может быть null при создании нового пользователя
+                .id(userDto.getId())
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .build();

@@ -17,6 +17,41 @@ import java.util.Objects;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler({
+            ItemUnavailableException.class,
+            InvalidBookingTimeException.class,
+            BookingAlreadyApprovedException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Map<String, String>> handleInvalidBooking(final RuntimeException e) {
+        log.warn("Ошибка 400 Bad Request (Booking): {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", e.getMessage()));
+    }
+
+    @ExceptionHandler({
+            BookingNotFoundException.class,
+            BookingSelfOwnershipException.class,
+            BookingPermissionException.class
+    })
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<Map<String, String>> handleBookingNotFoundOrAccessDenied(final RuntimeException e) {
+        log.warn("Ошибка 404 Not Found (Booking Access): {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", e.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(final IllegalArgumentException e) {
+        log.warn("Ошибка 400 Bad Request (Illegal Argument): {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", e.getMessage()));
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<Map<String, String>> handleUserNotFoundException(final UserNotFoundException e) {

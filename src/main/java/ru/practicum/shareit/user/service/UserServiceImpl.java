@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -7,7 +8,7 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,59 +17,64 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
-        return userStorage.findAll().stream()
+        return userRepository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDto getUserById(Long userId) {
-        User user = userStorage.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден."));
         return UserMapper.toUserDto(user);
     }
 
     @Override
+    @Transactional
     public UserDto createUser(UserDto userDto) {
-        userStorage.findByEmail(userDto.getEmail()).ifPresent(u -> {
+        if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new EmailAlreadyExistsException("Email " + userDto.getEmail() + " уже используется.");
-        });
+        }
         User user = UserMapper.toUser(userDto);
-        User savedUser = userStorage.save(user);
+        User savedUser = userRepository.save(user);
         return UserMapper.toUserDto(savedUser);
     }
 
     @Override
+    @Transactional
     public UserDto updateUser(Long userId, UserDto userDto) {
-        User existingUser = userStorage.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден для обновления."));
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден."));
 
-        if (userDto.getEmail() != null && !userDto.getEmail().equalsIgnoreCase(existingUser.getEmail())) {
-            userStorage.findByEmail(userDto.getEmail()).ifPresent(u -> {
-                if (!u.getId().equals(userId)) {
-                    throw new EmailAlreadyExistsException("Email " + userDto.getEmail() + " уже используется другим пользователем.");
-                }
-            });
+        if (userDto.getName() != null && !userDto.getName().isBlank()) {
+            existingUser.setName(userDto.getName());
         }
 
-        User userToUpdate = UserMapper.toUser(userDto);
-        userToUpdate.setId(userId);
+        if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
+            userRepository.findByEmail(userDto.getEmail()).ifPresent(userByEmail -> {
+                if (!userByEmail.getId().equals(userId)) {
+                    throw new EmailAlreadyExistsException("Email " + userDto.getEmail() + " уже используется.");
+                }
+            });
+            existingUser.setEmail(userDto.getEmail());
+        }
 
-        User updatedUser = userStorage.update(userToUpdate)
-                .orElseThrow(() -> new UserNotFoundException("Не удалось обновить пользователя с ID " + userId));
-
+        User updatedUser = userRepository.save(existingUser);
         return UserMapper.toUserDto(updatedUser);
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long userId) {
-        if (userStorage.findById(userId).isEmpty()) {
-            throw new UserNotFoundException("Пользователь с ID " + userId + " не найден для удаления.");
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException("Пользователь с ID " + userId + " не найден.");
         }
-        userStorage.deleteById(userId);
+        userRepository.deleteById(userId);
     }
 }
