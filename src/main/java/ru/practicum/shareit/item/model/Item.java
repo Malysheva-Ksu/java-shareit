@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.request.model.ItemRequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -37,4 +40,7 @@ public class Item {
     @JoinColumn(name = "request_id")
     private ItemRequest request;
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
 }

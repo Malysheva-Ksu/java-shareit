@@ -5,6 +5,10 @@ import lombok.Data;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.item.model.Item;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -23,4 +27,8 @@ public class User {
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Item> items = new ArrayList<>();
 }
