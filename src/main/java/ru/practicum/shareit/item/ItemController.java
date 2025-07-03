@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<ItemDto> addItem(@RequestHeader(USER_ID_HEADER) Long ownerId,
-                                           @RequestBody ItemDto itemDto) {
+                                           @Valid @RequestBody ItemDto itemDto) {
         if (itemDto.getName() == null || itemDto.getName().isBlank() ||
                 itemDto.getDescription() == null || itemDto.getDescription().isBlank() ||
                 itemDto.getAvailable() == null) {
@@ -29,7 +30,6 @@ public class ItemController {
             return ResponseEntity.badRequest().build();
         }
         ItemDto createdItem = itemService.addItem(ownerId, itemDto);
-        log.info("Вещь успешно добавлена: {}", createdItem);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdItem);
     }
 
@@ -38,7 +38,6 @@ public class ItemController {
                                               @PathVariable Long itemId,
                                               @RequestBody ItemDto itemDto) {
         ItemDto updatedItem = itemService.updateItem(ownerId, itemId, itemDto);
-        log.info("Вещь успешно обновлена: {}", updatedItem);
         return ResponseEntity.ok(updatedItem);
     }
 
@@ -59,7 +58,6 @@ public class ItemController {
     public ResponseEntity<List<ItemDto>> searchItems(@RequestParam String text,
                                                      @RequestHeader(value = USER_ID_HEADER, required = false) Long userId) {
         List<ItemDto> foundItems = itemService.searchAvailableItems(text);
-        log.info("Найдено {} вещей по запросу '{}'", foundItems.size(), text);
         return ResponseEntity.ok(foundItems);
     }
 }

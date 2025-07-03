@@ -35,25 +35,21 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            log.warn("Попытка создать пользователя с пустым email. DTO: {}", userDto);
-            throw new IllegalArgumentException("Email не может быть пустым или отсутствовать.");
+            throw new IllegalArgumentException("Email не может быть пустым.");
         }
         UserDto createdUser = userService.createUser(userDto);
-        log.info("Пользователь успешно создан: {}", createdUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @PatchMapping("/{userId}")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
         UserDto updatedUser = userService.updateUser(userId, userDto);
-        log.info("Пользователь успешно обновлен: {}", updatedUser);
         return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
-        log.info("Пользователь с ID {} успешно удален", userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
