@@ -31,17 +31,27 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", e.getMessage()));
     }
 
+    @ExceptionHandler({BookingPermissionException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<Map<String, String>> handleAccessDenied(final RuntimeException e) {
+        log.warn("Ошибка доступа: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(Map.of(
+                        "error", e.getMessage()
+                ));
+    }
+
     @ExceptionHandler({
             BookingNotFoundException.class,
             BookingSelfOwnershipException.class,
-            BookingPermissionException.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Map<String, String>> handleBookingNotFoundOrAccessDenied(final RuntimeException e) {
+    public ResponseEntity<Map<String, String>> handleBookingNotFound(final RuntimeException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(Map.of(
-                        "error", "Booking Not Found or Access Denied.",
+                        "error", "Booking Not Found.",
                         "errorMessage", e.getMessage()
                 ));
     }
@@ -98,10 +108,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, String>> handleEmailAlreadyExistsException(final EmailAlreadyExistsException e) {
         return ResponseEntity
-                .status(HttpStatus.CONFLICT)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of(
                         "error", "Email already exists",
                         "errorMessage", e.getMessage()
