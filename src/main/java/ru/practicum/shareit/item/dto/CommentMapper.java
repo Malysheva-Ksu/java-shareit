@@ -20,7 +20,7 @@ public class CommentMapper {
                 .text(requestDto.getText())
                 .item(item)
                 .author(author)
-                .createdAt(LocalDateTime.now())
+                .created(LocalDateTime.now())
                 .build();
     }
 
@@ -37,7 +37,7 @@ public class CommentMapper {
                 .id(comment.getId())
                 .text(comment.getText())
                 .authorName(authorName)
-                .createdAt(comment.getCreatedAt())
+                .created(comment.getCreated())
                 .build();
     }
 }

@@ -35,7 +35,7 @@ public class Comment {
     private User author;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime created;
 
     @Override
     public boolean equals(Object o) {

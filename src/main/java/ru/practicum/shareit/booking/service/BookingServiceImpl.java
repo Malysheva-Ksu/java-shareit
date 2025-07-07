@@ -75,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new BookingNotFoundException("Бронирование с ID " + bookingId + " не найдено."));
 
         if (!booking.getBooker().getId().equals(userId) && !booking.getItem().getOwner().getId().equals(userId)) {
-            throw new BookingPermissionException("Нет доступа к бронированию.");
+            throw new BookingNotFoundException("Нет доступа к бронированию.");
         }
         return BookingMapper.toBookingResponseDto(booking);
     }
