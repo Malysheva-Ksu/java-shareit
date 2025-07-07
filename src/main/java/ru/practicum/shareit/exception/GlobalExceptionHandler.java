@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import ru.practicum.shareit.exception.*;
-
 import java.util.Map;
 import java.util.Objects;
 
@@ -65,6 +63,40 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(UnknownStateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Map<String, String>> handleUnknownStateException(final UnknownStateException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "error", "Status validation error",
+                        "errorMessage", e.getMessage()
+                ));
+    }
+
+    @ExceptionHandler({ItemRequestNotFoundException.class
+    })
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<Map<String, String>> handleResourceNotFound(final RuntimeException e) {
+        log.warn("Ресурс не найден: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "error", "Resource Not Found",
+                        "errorMessage", e.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(CommentValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Map<String, String>> CommentValidationException(final CommentValidationException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "error", e.getMessage()
+                ));
+    }
+
     @ExceptionHandler(EmailAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<Map<String, String>> handleEmailAlreadyExistsException(final EmailAlreadyExistsException e) {
@@ -77,10 +109,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<Map<String, String>> handleUserAccessDeniedException(final UserAccessDeniedException e) {
         return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
+                .status(HttpStatus.NOT_FOUND)
                 .body(Map.of(
                         "error", "Access Denied",
                         "errorMessage", e.getMessage()

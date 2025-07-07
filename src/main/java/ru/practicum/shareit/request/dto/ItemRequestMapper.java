@@ -1,49 +1,57 @@
 package ru.practicum.shareit.request.dto;
 
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.stream.Collectors;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemRequestMapper {
 
     private ItemRequestMapper() {
     }
 
-    public static ItemRequestDto toItemRequestDto(ItemRequest request) {
+    public static ItemRequestResponseDto toItemRequestResponseDto(ItemRequest request) {
         if (request == null) {
             return null;
         }
 
-        List<ItemDto> itemDtos = Collections.emptyList();
-        if (request.getItems() != null && !request.getItems().isEmpty()) {
-            itemDtos = request.getItems().stream()
-                    .map(ItemMapper::toItemDto)
-                    .collect(Collectors.toList());
-        }
+        List<ItemDto> itemDtos = request.getItems() == null ? Collections.emptyList() :
+                request.getItems().stream()
+                        .map(ItemRequestMapper::toItemDto)
+                        .collect(Collectors.toList());
 
-        return ItemRequestDto.builder()
+        return ItemRequestResponseDto.builder()
                 .id(request.getId())
                 .description(request.getDescription())
-                .requester(UserMapper.toUserDto(request.getRequester()))
-                .created(request.getCreated())
+                .requesterId(request.getRequester().getId())
+                .createdAt(request.getCreatedAt())
                 .items(itemDtos)
                 .build();
     }
 
-    public static ItemRequest toItemRequest(ItemRequestDto requestDto, User requesterEntity) {
-        if (requestDto == null) {
+    public static ItemRequest toItemRequest(ItemRequestCreateDto createDto, User requester) {
+        if (createDto == null) {
             return null;
         }
         return ItemRequest.builder()
-                .description(requestDto.getDescription())
-                .requester(requesterEntity)
-                .created(requestDto.getCreated() != null ? requestDto.getCreated() : java.time.LocalDateTime.now())
+                .description(createDto.getDescription())
+                .requester(requester)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    private static ItemDto toItemDto(Item item) {
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .requestId(item.getRequest().getId())
                 .build();
     }
 }

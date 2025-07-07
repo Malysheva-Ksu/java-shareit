@@ -1,14 +1,19 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.UnknownStateException;
 
 import java.util.List;
 
@@ -16,13 +21,14 @@ import java.util.List;
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class BookingController {
     private final BookingService bookingService;
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ResponseEntity<BookingResponseDto> createBooking(@RequestHeader(USER_ID_HEADER) Long bookerId,
-                                                            @RequestBody BookingRequestDto bookingDto) {
+                                                            @Valid @RequestBody BookingRequestDto bookingDto) {
         BookingResponseDto createdBooking = bookingService.createBooking(bookerId, bookingDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
     }
@@ -46,9 +52,10 @@ public class BookingController {
     public ResponseEntity<List<BookingResponseDto>> getBookingsForUser(
             @RequestHeader(USER_ID_HEADER) Long userId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "10") int size) {
-        BookingState bookingState = BookingState.valueOf(state.toUpperCase());
+            @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+            @Positive @RequestParam(defaultValue = "10") int size) {
+        BookingState bookingState = BookingState.from(state)
+                .orElseThrow(() -> new UnknownStateException("Unknown state: " + state));
         List<BookingResponseDto> bookings = bookingService.getBookingsForUser(userId, bookingState, from, size);
         return ResponseEntity.ok(bookings);
     }
@@ -57,9 +64,10 @@ public class BookingController {
     public ResponseEntity<List<BookingResponseDto>> getBookingsForOwner(
             @RequestHeader(USER_ID_HEADER) Long ownerId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "10") int size) {
-        BookingState bookingState = BookingState.valueOf(state.toUpperCase());
+            @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+            @Positive @RequestParam(defaultValue = "10") int size) {
+        BookingState bookingState = BookingState.from(state)
+                .orElseThrow(() -> new UnknownStateException("Unknown state: " + state));
         List<BookingResponseDto> bookings = bookingService.getBookingsForOwner(ownerId, bookingState, from, size);
         return ResponseEntity.ok(bookings);
     }

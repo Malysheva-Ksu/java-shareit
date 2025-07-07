@@ -1,17 +1,18 @@
 package ru.practicum.shareit.user.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.dto.UserResponseDto;
+import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,16 +21,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    @Transactional(readOnly = true)
-    public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
+    public Page<UserResponseDto> getAllUsers(Pageable pageable) {
+        Page<User> userPage = userRepository.findAll(pageable);
+        return userPage.map(UserMapper::toUserResponseDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public UserDto getUserById(Long userId) {
+    public UserResponseDto getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден."));
         return UserMapper.toUserDto(user);
@@ -37,18 +36,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto createUser(UserDto userDto) {
+    public UserResponseDto createUser(UserCreateDto userDto) {
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new EmailAlreadyExistsException("Email " + userDto.getEmail() + " уже используется.");
         }
         User user = UserMapper.toUser(userDto);
-        User savedUser = userRepository.save(user);
-        return UserMapper.toUserDto(savedUser);
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     @Override
     @Transactional
-    public UserDto updateUser(Long userId, UserDto userDto) {
+    public UserResponseDto updateUser(Long userId, UserUpdateDto userDto) {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден."));
 
@@ -56,25 +54,19 @@ public class UserServiceImpl implements UserService {
             existingUser.setName(userDto.getName());
         }
 
-        if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
-            userRepository.findByEmail(userDto.getEmail()).ifPresent(userByEmail -> {
-                if (!userByEmail.getId().equals(userId)) {
-                    throw new EmailAlreadyExistsException("Email " + userDto.getEmail() + " уже используется.");
-                }
-            });
+        if (userDto.getEmail() != null && !userDto.getEmail().isBlank() && !userDto.getEmail().equals(existingUser.getEmail())) {
+            if (userRepository.existsByEmail(userDto.getEmail())) {
+                throw new EmailAlreadyExistsException("Email " + userDto.getEmail() + " уже используется.");
+            }
             existingUser.setEmail(userDto.getEmail());
         }
 
-        User updatedUser = userRepository.save(existingUser);
-        return UserMapper.toUserDto(updatedUser);
+        return UserMapper.toUserDto(existingUser);
     }
 
     @Override
     @Transactional
     public void deleteUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException("Пользователь с ID " + userId + " не найден.");
-        }
         userRepository.deleteById(userId);
     }
 }
