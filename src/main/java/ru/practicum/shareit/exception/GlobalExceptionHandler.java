@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CommentValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Map<String, String>> CommentValidationException(final CommentValidationException e) {
+    public ResponseEntity<Map<String, String>> commentValidationException(final CommentValidationException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of(
