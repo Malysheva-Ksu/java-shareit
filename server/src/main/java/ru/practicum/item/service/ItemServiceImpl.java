@@ -65,6 +65,8 @@ public class ItemServiceImpl implements ItemService {
             throw new UserAccessDeniedException("Пользователь не является владельцем вещи.");
         }
 
+        Item updatedItem = itemRepository.save(item);
+
         Optional.ofNullable(updateDto.getName()).ifPresent(item::setName);
         Optional.ofNullable(updateDto.getDescription()).ifPresent(item::setDescription);
         Optional.ofNullable(updateDto.getAvailable()).ifPresent(item::setAvailable);

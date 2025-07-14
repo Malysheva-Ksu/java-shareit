@@ -1,5 +1,6 @@
 package ru.practicum.item;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<ItemResponseDto> addItem(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                                   @RequestBody ItemCreateDto createDto) {
+                                                   @Valid @RequestBody ItemCreateDto createDto) {
         ItemResponseDto createdItem = itemService.addItem(ownerId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdItem);
     }
