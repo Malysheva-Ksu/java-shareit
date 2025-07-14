@@ -13,6 +13,6 @@ public class ItemRequestResponseDto {
     private Long id;
     private String description;
     private Long requesterId;
-    private LocalDateTime createdAt;
+    private LocalDateTime created;
     private List<ItemDto> items;
 }
