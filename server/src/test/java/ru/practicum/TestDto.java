@@ -171,7 +171,7 @@ public class TestDto {
                 .id(1L)
                 .description("need book")
                 .requesterId(50L)
-                .createdAt(creationTime)
+                .created(creationTime)
                 .items(List.of(itemDto))
                 .build();
 
@@ -180,7 +180,7 @@ public class TestDto {
         Assertions.assertThat(result).hasJsonPathNumberValue("$.id", 1L);
         Assertions.assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("need book");
         Assertions.assertThat(result).extractingJsonPathNumberValue("$.requesterId").isEqualTo(50L);
-        Assertions.assertThat(result).extractingJsonPathStringValue("$.createdAt").isEqualTo("2025-09-15T11:30:00");
+        Assertions.assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo("2025-09-15T11:30:00");
 
         Assertions.assertThat(result).hasJsonPath("$.items");
         Assertions.assertThat(result).extractingJsonPathArrayValue("$.items").hasSize(1);

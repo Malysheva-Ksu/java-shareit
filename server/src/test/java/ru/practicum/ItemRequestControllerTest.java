@@ -49,7 +49,7 @@ class ItemRequestControllerTest {
         responseDto = ItemRequestResponseDto.builder()
                 .id(1L)
                 .description("need book")
-                .createdAt(LocalDateTime.now())
+                .created(LocalDateTime.now())
                 .items(Collections.emptyList())
                 .build();
 
