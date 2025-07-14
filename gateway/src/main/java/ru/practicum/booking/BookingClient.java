@@ -3,30 +3,32 @@ package ru.practicum.booking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.booking.dto.BookingRequestDto;
 import ru.practicum.booking.dto.BookingState;
 import ru.practicum.client.BaseClient;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 @Service
 public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
 
     @Autowired
-    public BookingClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                        .requestFactory((Supplier<ClientHttpRequestFactory>) new HttpComponentsClientHttpRequestFactory())
-                        .build()
-        );
+    public BookingClient(RestTemplate restTemplate) {
+        super(restTemplate, API_PREFIX);
+    }
+
+    @Override
+    protected String getApiPath() {
+        return API_PREFIX;
     }
 
     public ResponseEntity<Object> bookItem(long userId, BookingRequestDto requestDto) {
@@ -58,5 +60,24 @@ public class BookingClient extends BaseClient {
                 "size", size
         );
         return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
+    }
+
+    @Configuration
+    static class RestTemplateConfig {
+        @Autowired
+        private RestTemplateBuilder builder;
+
+        @Bean
+        public ClientHttpRequestFactory clientHttpRequestFactory() {
+            return new HttpComponentsClientHttpRequestFactory();
+        }
+
+        @Bean
+        public RestTemplate restTemplate(ClientHttpRequestFactory clientHttpRequestFactory, @Value("${shareit-server.url}") String serverUrl) {
+            return builder
+                    .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
+                    .requestFactory(() -> clientHttpRequestFactory())
+                    .build();
+        }
     }
 }
