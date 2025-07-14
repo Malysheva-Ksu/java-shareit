@@ -1,17 +1,19 @@
 package ru.practicum.shareit.user.service;
 
-import ru.practicum.shareit.user.dto.UserDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.user.dto.UserCreateDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
+import ru.practicum.shareit.user.dto.UserUpdateDto;
 
 public interface UserService {
-    List<UserDto> getAllUsers();
+    Page<UserResponseDto> getAllUsers(Pageable pageable);
 
-    UserDto getUserById(Long userId);
+    UserResponseDto getUserById(Long userId);
 
-    UserDto createUser(UserDto userDto);
+    UserResponseDto createUser(UserCreateDto userDto);
 
-    UserDto updateUser(Long userId, UserDto userDto);
+    UserResponseDto updateUser(Long userId, UserUpdateDto userDto);
 
     void deleteUser(Long userId);
 }

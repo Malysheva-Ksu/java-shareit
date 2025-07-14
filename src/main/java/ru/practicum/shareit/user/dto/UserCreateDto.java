@@ -1,20 +1,15 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.Data;
-import lombok.Builder;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Email;
-
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
-    private Long id;
-
+public class UserCreateDto {
     @NotBlank(message = "Имя пользователя не может быть пустым.")
     private String name;
 

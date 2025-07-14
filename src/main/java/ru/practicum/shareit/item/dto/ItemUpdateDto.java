@@ -1,14 +1,15 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-@Builder
 @Data
-public class ItemDto {
-    private Long id;
+public class ItemUpdateDto {
+    @Size(max = 255)
     private String name;
+
+    @Size(max = 1000)
     private String description;
+
     private Boolean available;
-    private Long requestId;
 }
