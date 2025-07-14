@@ -11,13 +11,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class BaseClient {
+public abstract class BaseClient {
     protected final RestTemplate rest;
+    private final String apiPrefix;
+    private static final Logger logger = LoggerFactory.getLogger(BaseClient.class);
 
-    public BaseClient(RestTemplate rest) {
+    public BaseClient(RestTemplate rest, String apiPrefix) {
         this.rest = rest;
+        this.apiPrefix = apiPrefix;
     }
+
+    protected abstract String getApiPath();
 
     protected ResponseEntity<Object> get(String path) {
         return get(path, null, null);
@@ -83,14 +90,18 @@ public class BaseClient {
         HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders(userId));
 
         ResponseEntity<Object> shareitServerResponse;
+        String fullPath = getApiPath() + path;
+
         try {
             if (parameters != null) {
-                shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class, parameters);
+                shareitServerResponse = rest.exchange(fullPath, method, requestEntity, Object.class, parameters);
             } else {
-                shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class);
+                shareitServerResponse = rest.exchange(fullPath, method, requestEntity, Object.class);
             }
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred", e);
         }
         return prepareGatewayResponse(shareitServerResponse);
     }
