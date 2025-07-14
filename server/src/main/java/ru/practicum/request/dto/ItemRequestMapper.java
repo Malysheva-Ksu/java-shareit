@@ -8,34 +8,14 @@ import ru.practicum.user.User;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class ItemRequestMapper {
+public final class ItemRequestMapper {
 
     private ItemRequestMapper() {
     }
 
-    public static ItemRequestResponseDto toItemRequestResponseDto(ItemRequest request) {
-        if (request == null) {
-            return null;
-        }
-
-        List<ItemDto> itemDtos = request.getItems() == null ? Collections.emptyList() :
-                request.getItems().stream()
-                        .map(ItemRequestMapper::toItemDto)
-                        .collect(Collectors.toList());
-
-        return ItemRequestResponseDto.builder()
-                .id(request.getId())
-                .description(request.getDescription())
-                .requesterId(request.getRequester().getId())
-                .createdAt(request.getCreated())
-                .items(itemDtos)
-                .build();
-    }
-
     public static ItemRequest toItemRequest(ItemRequestCreateDto createDto, User requester) {
-        if (createDto == null) {
+        if (createDto == null || requester == null) {
             return null;
         }
         return ItemRequest.builder()
@@ -46,21 +26,34 @@ public class ItemRequestMapper {
     }
 
     public static ItemRequestResponseDto toResponseDto(ItemRequest request, List<ItemDto> items) {
+        if (request == null) {
+            return null;
+        }
+
+        Long requesterId = (request.getRequester() != null) ? request.getRequester().getId() : null;
+
         return ItemRequestResponseDto.builder()
                 .id(request.getId())
                 .description(request.getDescription())
+                .requesterId(requesterId)
                 .createdAt(request.getCreated())
-                .items(items)
+                .items(items != null ? items : Collections.emptyList())
                 .build();
     }
 
-    private static ItemDto toItemDto(Item item) {
+    public static ItemDto toItemDto(Item item) {
+        if (item == null) {
+            return null;
+        }
+
+        Long requestId = (item.getRequest() != null) ? item.getRequest().getId() : null;
+
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .requestId(item.getRequest().getId())
+                .requestId(requestId)
                 .build();
     }
 }
