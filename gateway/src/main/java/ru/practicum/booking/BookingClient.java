@@ -61,23 +61,4 @@ public class BookingClient extends BaseClient {
         );
         return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
     }
-
-    @Configuration
-    static class RestTemplateConfig {
-        @Autowired
-        private RestTemplateBuilder builder;
-
-        @Bean
-        public ClientHttpRequestFactory clientHttpRequestFactory() {
-            return new HttpComponentsClientHttpRequestFactory();
-        }
-
-        @Bean
-        public RestTemplate restTemplate(ClientHttpRequestFactory clientHttpRequestFactory, @Value("${shareit-server.url}") String serverUrl) {
-            return builder
-                    .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                    .requestFactory(() -> clientHttpRequestFactory())
-                    .build();
-        }
-    }
 }

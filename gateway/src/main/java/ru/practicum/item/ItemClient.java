@@ -64,23 +64,4 @@ public class ItemClient extends BaseClient {
     public ResponseEntity<Object> addComment(Long authorId, Long itemId, CommentRequestDto commentDto) {
         return post("/" + itemId + "/comment", authorId, commentDto);
     }
-
-    @Configuration
-    static class RestTemplateConfig {
-        @Autowired
-        private RestTemplateBuilder builder;
-
-        @Bean
-        public ClientHttpRequestFactory clientHttpRequestFactory() {
-            return new HttpComponentsClientHttpRequestFactory();
-        }
-
-        @Bean
-        public RestTemplate restTemplate(ClientHttpRequestFactory clientHttpRequestFactory, @Value("${shareit-server.url}") String serverUrl) {
-            return builder
-                    .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                    .requestFactory(() -> clientHttpRequestFactory())
-                    .build();
-        }
-    }
 }

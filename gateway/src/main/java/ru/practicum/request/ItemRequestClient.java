@@ -1,16 +1,9 @@
 package ru.practicum.request;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.client.BaseClient;
 import ru.practicum.request.dto.ItemRequestCreateDto;
 
@@ -48,24 +41,5 @@ public class ItemRequestClient extends BaseClient {
 
     public ResponseEntity<Object> findById(Long userId, Long requestId) {
         return get("/" + requestId, userId);
-    }
-
-    @Configuration
-    static class RestTemplateConfig {
-        @Autowired
-        private RestTemplateBuilder builder;
-
-        @Bean
-        public ClientHttpRequestFactory clientHttpRequestFactory() {
-            return new HttpComponentsClientHttpRequestFactory();
-        }
-
-        @Bean
-        public RestTemplate restTemplate(ClientHttpRequestFactory clientHttpRequestFactory, @Value("${shareit-server.url}") String serverUrl) {
-            return builder
-                    .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                    .requestFactory(() -> clientHttpRequestFactory())
-                    .build();
-        }
     }
 }
